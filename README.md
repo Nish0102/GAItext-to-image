@@ -1,31 +1,32 @@
-# GAItext-to-image   
+# 🎨 AI Text-to-Image Generator
 
-A Generative AI web app that converts text prompts into images using **Stable Diffusion** and **Streamlit**.
+A Generative AI project that converts text prompts into images using **Stable Diffusion XL**. Users can enter a prompt, select a style (Realistic, Anime, Painting), and generate high-quality AI images that can be downloaded.  
 
-Users can enter a prompt, choose a style, and generate AI-powered images instantly.
-
----
-
-## 🚀 Demo
-
-(Link to be added soon...)
+This project demonstrates skills in **Generative AI, prompt engineering, diffusion models, and deploying AI applications**.
 
 ---
 
-## 📌 Features
-
-- 🧠 Text-to-Image generation using Stable Diffusion  
-- 🎭 Style selection (Realistic, Anime, Painting)  
-- ⚡ Prompt engineering for improved outputs  
-- 💾 Download generated images  
-- 🔄 Model caching for faster performance  
+## 🚀 Features
+- Text-to-Image generation  
+- Style-based prompt enhancement (Realistic, Anime, Painting)  
+- Downloadable images  
+- GPU accelerated for fast generation (works on T4 GPU in Colab)  
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠 Tech Stack
+- Python  
+- PyTorch  
+- HuggingFace Diffusers (Stable Diffusion XL)  
+- PIL (Python Imaging Library)  
+- Google Colab / Local GPU  
 
-- **Python**
-- **Streamlit**
-- **HuggingFace Diffusers**
-- **PyTorch**
-- **Stable Diffusion 2.1**
+---
+
+## ⚙️ Installation & Run
+
+1. Clone the repository:
+
+```bash
+git clone <YOUR_REPO_URL>
+cd AI-Text-to-Image
