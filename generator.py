@@ -1,56 +1,47 @@
 import torch
-from diffusers import StableDiffusionPipeline
+import random
+from diffusers import AutoPipelineForText2Image, AutoPipelineForImage2Image
 from styles import styles
 
-device = "cuda" if torch.cuda.is_available() else "cpu"
+# Load SDXL Turbo — much faster than standard SDXL
+pipe = AutoPipelineForText2Image.from_pretrained(
+    "stabilityai/sdxl-turbo",
+    torch_dtype=torch.float16,
+    variant="fp16"
+).to("cuda")
 
-model_id = "Lykon/DreamShaper"
+pipe_img2img = AutoPipelineForImage2Image.from_pretrained(
+    "stabilityai/sdxl-turbo",
+    torch_dtype=torch.float16,
+    variant="fp16"
+).to("cuda")
 
-pipe = StableDiffusionPipeline.from_pretrained(
-    model_id,
-    torch_dtype=torch.float16
-)
+def generate(prompt, negative_prompt, style, steps, guidance, seed, num_images, width, height):
+    style_prompt = styles.get(style, "")
+    full_prompt = f"{style_prompt}, {prompt}" if style_prompt else prompt
+    generator = torch.manual_seed(int(seed)) if seed != -1 else torch.manual_seed(random.randint(0, 99999))
 
-pipe = pipe.to(device)
-pipe.enable_attention_slicing()
-
-
-def build_prompt(prompt, style):
-
-    realism_boost = (
-        "highly detailed, natural lighting, realistic textures, "
-        "sharp focus, high dynamic range, professional photo"
-    )
-
-    final_prompt = prompt
-
-    if style != "None":
-        final_prompt += f", {styles[style]}"
-
-    final_prompt += f", {realism_boost}"
-
-    return final_prompt
-
-
-negative_prompt = (
-    "blurry, low quality, low resolution, distorted, "
-    "extra fingers, extra limbs, malformed hands, bad anatomy, "
-    "deformed face, unrealistic proportions, duplicate body parts, "
-    "cartoon, anime, painting, illustration, cgi"
-)
-
-
-def generate(prompt, style):
-
-    final_prompt = build_prompt(prompt, style)
-
-    image = pipe(
-        prompt=final_prompt,
+    images = pipe(
+        prompt=full_prompt,
         negative_prompt=negative_prompt,
-        num_inference_steps=35,
-        guidance_scale=7.5,
-        height=512,
-        width=512
-    ).images[0]
+        num_inference_steps=steps,      # Only 1-4 needed for Turbo!
+        guidance_scale=guidance,        # Use 0.0 for Turbo
+        num_images_per_prompt=num_images,
+        width=width,
+        height=height,
+        generator=generator
+    ).images
+    return images
 
+def generate_img2img(prompt, init_image, strength, style, steps, guidance):
+    style_prompt = styles.get(style, "")
+    full_prompt = f"{style_prompt}, {prompt}" if style_prompt else prompt
+
+    image = pipe_img2img(
+        prompt=full_prompt,
+        image=init_image,
+        strength=strength,
+        num_inference_steps=steps,
+        guidance_scale=guidance,
+    ).images[0]
     return image
